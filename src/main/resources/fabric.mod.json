@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.CleanCreative"
+      "me.gabriel.cleancreative.CleanCreative"
     ]
   },
   "mixins": [
