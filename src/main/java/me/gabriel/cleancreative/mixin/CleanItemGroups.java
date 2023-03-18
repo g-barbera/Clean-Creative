@@ -1,4 +1,4 @@
-package net.fabricmc.example.mixin;
+package me.gabriel.cleancreative.mixin;
 
 import static net.minecraft.item.FireworkRocketItem.setFlight;
 import static net.minecraft.item.GoatHornItem.getStackForInstrument;
