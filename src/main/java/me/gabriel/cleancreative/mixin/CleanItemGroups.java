@@ -1,6 +1,6 @@
 package me.gabriel.cleancreative.mixin;
 
-import static net.minecraft.item.FireworkRocketItem.setFlight;
+import static net.minecraft.item.FireworkRocketItem.*;
 import static net.minecraft.item.GoatHornItem.getStackForInstrument;
 import static net.minecraft.item.Instruments.*;
 import static net.minecraft.item.ItemGroup.*;
@@ -8,6 +8,8 @@ import static net.minecraft.item.Items.*;
 import static net.minecraft.registry.Registries.INSTRUMENT;
 
 import net.minecraft.block.SuspiciousStewIngredient;
+import net.minecraft.enchantment.EnchantmentLevelEntry;
+import net.minecraft.enchantment.EnchantmentTarget;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.RegistryKeys;
@@ -18,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -26,9 +29,16 @@ import java.util.stream.Stream;
 @Mixin(ItemGroups.class)
 public class CleanItemGroups {
     @Shadow private static void addPotions(ItemGroup.Entries entries, RegistryWrapper<Potion> registryWrapper, Item item, ItemGroup.StackVisibility visibility) {}
+
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=0,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector BUILDING_BLOCKS(EntryCollector entryCollector) {
+        return entryCollector; // TODO: Finish BUILDING_BLOCKS ItemGroup
+    }
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=1,
-             target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
-                     +"Lnet/minecraft/item/ItemGroup$Builder;"))
+         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+                 +"Lnet/minecraft/item/ItemGroup$Builder;"))
     private static EntryCollector COLORED_BLOCKS(EntryCollector entryCollector) {
         return (dc, entries) -> {
             Item[] items = {
@@ -80,6 +90,24 @@ public class CleanItemGroups {
             for (Item item: items) entries.add(item);
         };
     }
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=2,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector NATURAL(EntryCollector entryCollector) {
+        return entryCollector; // TODO: Finish NATURAL ItemGroup
+    }
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=3,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector FUNCTIONAL(EntryCollector entryCollector) {
+        return entryCollector; // TODO: Finish FUNCTIONAL ItemGroup
+    }
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=4,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector REDSTONE(EntryCollector entryCollector) {
+        return entryCollector; // TODO: Finish FUNCTIONAL ItemGroup
+    }
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=6,
             target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
                     +"Lnet/minecraft/item/ItemGroup$Builder;"))
@@ -106,7 +134,7 @@ public class CleanItemGroups {
             ).map(horn -> INSTRUMENT.getEntry(INSTRUMENT.get(horn))).iterator();
             for (Item item: items) {
                 stack = new ItemStack(item);
-                if (item == FIREWORK_ROCKET) setFlight(stack, ++i);
+                if (item == FIREWORK_ROCKET) stack.getOrCreateSubNbt(FIREWORKS_KEY).putByte(FLIGHT_KEY, ++i);
                 if (item == GOAT_HORN) stack = getStackForInstrument(item, iter.next());
                 entries.add(stack);
             }
@@ -169,6 +197,34 @@ public class CleanItemGroups {
                 addPotions(entries, registryWrapper, SPLASH_POTION, StackVisibility.PARENT_AND_SEARCH_TABS);
                 addPotions(entries, registryWrapper, LINGERING_POTION, StackVisibility.PARENT_AND_SEARCH_TABS);
             });
+        };
+    }
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=9,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector INGREDIENTS(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                COAL, IRON_INGOT, COPPER_INGOT, GOLD_INGOT, NETHERITE_INGOT, DIAMOND, LAPIS_LAZULI, BLAZE_ROD, SNOWBALL,
+                CHARCOAL, RAW_IRON, RAW_COPPER, RAW_GOLD, NETHERITE_SCRAP, EMERALD, QUARTZ, STRING, EGG,
+                HONEYCOMB, IRON_NUGGET, AMETHYST_SHARD, GOLD_NUGGET, ANCIENT_DEBRIS, STICK, FLINT, FEATHER, CLAY_BALL,
+                ECHO_SHARD, DISC_FRAGMENT_5, BOWL, FIRE_CHARGE, WHEAT, SCUTE, SLIME_BALL, FIREWORK_STAR, NETHER_STAR,
+                INK_SAC, BRICK, SHULKER_SHELL, BONE, ENDER_PEARL, BOOK, LEATHER, NAUTILUS_SHELL, PRISMARINE_CRYSTALS,
+                GLOW_INK_SAC, NETHER_BRICKS, POPPED_CHORUS_FRUIT, BONE_MEAL, ENDER_EYE, PAPER, RABBIT_HIDE, HEART_OF_THE_SEA, PRISMARINE_SHARD,
+                RED_DYE, ORANGE_DYE, YELLOW_DYE, LIME_DYE, GREEN_DYE, CYAN_DYE, LIGHT_BLUE_DYE, BLUE_DYE, NETHER_WART,
+                PURPLE_DYE, MAGENTA_DYE, PINK_DYE, BROWN_DYE, WHITE_DYE, LIGHT_GRAY_DYE, GRAY_DYE, BLACK_DYE, GLASS_BOTTLE,
+                FLOWER_BANNER_PATTERN, CREEPER_BANNER_PATTERN, SKULL_BANNER_PATTERN, MOJANG_BANNER_PATTERN, GLOBE_BANNER_PATTERN, PIGLIN_BANNER_PATTERN,
+                REDSTONE, SUGAR, BLAZE_POWDER, MAGMA_CREAM, SPIDER_EYE, RABBIT_FOOT, GOLDEN_CARROT, PHANTOM_MEMBRANE, TURTLE_HELMET,
+                GLOWSTONE_DUST, GUNPOWDER, DRAGON_BREATH, PUFFERFISH, FERMENTED_SPIDER_EYE, GHAST_TEAR, GLISTERING_MELON_SLICE, EXPERIENCE_BOTTLE
+            };
+            EnumSet<EnchantmentTarget> set = EnumSet.allOf(EnchantmentTarget.class);
+            for (Item item: items) {
+                if (item==REDSTONE) displayContext.lookup().getOptionalWrapper(RegistryKeys.ENCHANTMENT).ifPresent(registryWrapper -> {
+                    registryWrapper.streamEntries().map(RegistryEntry::value).filter(enchantment -> set.contains(enchantment.target)).map(enchantment -> EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, enchantment.getMaxLevel()))).forEach(stack -> entries.add(stack, StackVisibility.PARENT_TAB_ONLY));
+                    registryWrapper.streamEntries().map(RegistryEntry::value).filter(enchantment -> set.contains(enchantment.target)).flatMap(enchantment -> IntStream.rangeClosed(enchantment.getMinLevel(), enchantment.getMaxLevel()).mapToObj(level -> EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, level)))).forEach(stack -> entries.add(stack, StackVisibility.SEARCH_TAB_ONLY));
+                });
+                entries.add(item);
+            }
         };
     }
 }
