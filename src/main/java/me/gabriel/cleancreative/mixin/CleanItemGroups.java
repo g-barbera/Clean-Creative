@@ -15,6 +15,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.village.raid.Raid;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -100,7 +101,32 @@ public class CleanItemGroups {
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
     private static EntryCollector FUNCTIONAL(EntryCollector entryCollector) {
-        return entryCollector; // TODO: Finish FUNCTIONAL ItemGroup
+        return (displayContext, entries) -> {
+            Item[] items = {
+                CRAFTING_TABLE, FURNACE, CHEST, ENDER_CHEST, BREWING_STAND, ANVIL, CHIPPED_ANVIL, DAMAGED_ANVIL, ENCHANTING_TABLE,
+                STONECUTTER, SMOKER, BARREL, LOOM, CAULDRON, CARTOGRAPHY_TABLE, BEACON, BEEHIVE, BEE_NEST,
+                LECTERN, BLAST_FURNACE, SMITHING_TABLE, FLETCHING_TABLE, GRINDSTONE, COMPOSTER, BELL, GLOW_LICHEN, LODESTONE,
+                CAMPFIRE, LANTERN, TORCH, REDSTONE_TORCH, GLOWSTONE, SHROOMLIGHT, MAGMA_BLOCK, CRYING_OBSIDIAN, RESPAWN_ANCHOR,
+                SOUL_CAMPFIRE, SOUL_LANTERN, SOUL_TORCH, END_ROD, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT, SEA_LANTERN, REDSTONE_LAMP,
+                BOOKSHELF, CHAIN, LADDER, SCAFFOLDING, LIGHTNING_ROD, FLOWER_POT, ARMOR_STAND, ITEM_FRAME, GLOW_ITEM_FRAME,
+                RED_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
+                GREEN_SHULKER_BOX, CYAN_SHULKER_BOX, BLUE_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, SHULKER_BOX,
+                PURPLE_SHULKER_BOX, MAGENTA_SHULKER_BOX, PINK_SHULKER_BOX, BROWN_SHULKER_BOX,
+                WHITE_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, GRAY_SHULKER_BOX, BLACK_SHULKER_BOX, TINTED_GLASS,
+                RED_BED, ORANGE_BED, YELLOW_BED, LIME_BED, GREEN_BED, CYAN_BED, BLUE_BED, LIGHT_BLUE_BED, JUKEBOX,
+                PURPLE_BED, MAGENTA_BED, PINK_BED, BROWN_BED, WHITE_BED, LIGHT_GRAY_BED, GRAY_BED, BLACK_BED, NOTE_BLOCK,
+                RED_CANDLE, ORANGE_CANDLE, YELLOW_CANDLE, LIME_CANDLE, GREEN_CANDLE, CYAN_CANDLE, BLUE_CANDLE, LIGHT_BLUE_CANDLE, CANDLE,
+                PURPLE_CANDLE, MAGENTA_CANDLE, PINK_CANDLE, BROWN_CANDLE, WHITE_CANDLE, LIGHT_GRAY_CANDLE, GRAY_CANDLE, BLACK_CANDLE, CONDUIT,
+                RED_BANNER, ORANGE_BANNER, YELLOW_BANNER, LIME_BANNER, GREEN_BANNER, CYAN_BANNER, BLUE_BANNER, LIGHT_BLUE_BANNER, // (ominous banner here)
+                PURPLE_BANNER, MAGENTA_BANNER, PINK_BANNER, BROWN_BANNER, WHITE_BANNER, LIGHT_GRAY_BANNER, GRAY_BANNER, BLACK_BANNER, END_CRYSTAL,
+                SKELETON_SKULL, WITHER_SKELETON_SKULL, PLAYER_HEAD, INFESTED_STONE, INFESTED_COBBLESTONE, INFESTED_DEEPSLATE, DRAGON_EGG, END_PORTAL_FRAME, ENDER_EYE,
+                ZOMBIE_HEAD, CREEPER_HEAD, DRAGON_HEAD, INFESTED_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS
+            };
+            for (Item item: items) {
+                if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
+                entries.add(item);
+            }
+        };
     }
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=4,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
