@@ -10,17 +10,20 @@ import static net.minecraft.registry.Registries.INSTRUMENT;
 import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.EnchantmentTarget;
+import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.PaintingVariantTags;
 import net.minecraft.village.raid.Raid;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -28,8 +31,12 @@ import java.util.stream.Stream;
  *
  */
 @Mixin(ItemGroups.class)
-public class CleanItemGroups {
-    @Shadow private static void addPotions(ItemGroup.Entries entries, RegistryWrapper<Potion> registryWrapper, Item item, ItemGroup.StackVisibility visibility) {}
+public abstract class CleanItemGroups {
+    @Shadow private static void addPotions(
+        ItemGroup.Entries entries, RegistryWrapper<Potion> registryWrapper, Item item, ItemGroup.StackVisibility visibility) {}
+
+    @Shadow private static void addPaintings(
+        Entries entries, RegistryWrapper.Impl<PaintingVariant> registryWrapper, Predicate<RegistryEntry<PaintingVariant>> predicate, StackVisibility visibility) {}
 
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=0,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
@@ -109,6 +116,8 @@ public class CleanItemGroups {
                 CAMPFIRE, LANTERN, TORCH, REDSTONE_TORCH, GLOWSTONE, SHROOMLIGHT, MAGMA_BLOCK, CRYING_OBSIDIAN, RESPAWN_ANCHOR,
                 SOUL_CAMPFIRE, SOUL_LANTERN, SOUL_TORCH, END_ROD, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT, SEA_LANTERN, REDSTONE_LAMP,
                 BOOKSHELF, CHAIN, LADDER, SCAFFOLDING, LIGHTNING_ROD, FLOWER_POT, ARMOR_STAND, ITEM_FRAME, GLOW_ITEM_FRAME,
+                OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, CRIMSON_SIGN, WARPED_SIGN,
+                PAINTING, /* rest of paintings placed in li. 135 */
                 RED_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
                 GREEN_SHULKER_BOX, CYAN_SHULKER_BOX, BLUE_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, SHULKER_BOX,
                 PURPLE_SHULKER_BOX, MAGENTA_SHULKER_BOX, PINK_SHULKER_BOX, BROWN_SHULKER_BOX,
@@ -117,12 +126,16 @@ public class CleanItemGroups {
                 PURPLE_BED, MAGENTA_BED, PINK_BED, BROWN_BED, WHITE_BED, LIGHT_GRAY_BED, GRAY_BED, BLACK_BED, NOTE_BLOCK,
                 RED_CANDLE, ORANGE_CANDLE, YELLOW_CANDLE, LIME_CANDLE, GREEN_CANDLE, CYAN_CANDLE, BLUE_CANDLE, LIGHT_BLUE_CANDLE, CANDLE,
                 PURPLE_CANDLE, MAGENTA_CANDLE, PINK_CANDLE, BROWN_CANDLE, WHITE_CANDLE, LIGHT_GRAY_CANDLE, GRAY_CANDLE, BLACK_CANDLE, CONDUIT,
-                RED_BANNER, ORANGE_BANNER, YELLOW_BANNER, LIME_BANNER, GREEN_BANNER, CYAN_BANNER, BLUE_BANNER, LIGHT_BLUE_BANNER, // (ominous banner here)
+                RED_BANNER, ORANGE_BANNER, YELLOW_BANNER, LIME_BANNER, GREEN_BANNER, CYAN_BANNER, BLUE_BANNER, LIGHT_BLUE_BANNER, // ominous banner placed in li.139
                 PURPLE_BANNER, MAGENTA_BANNER, PINK_BANNER, BROWN_BANNER, WHITE_BANNER, LIGHT_GRAY_BANNER, GRAY_BANNER, BLACK_BANNER, END_CRYSTAL,
                 SKELETON_SKULL, WITHER_SKELETON_SKULL, PLAYER_HEAD, INFESTED_STONE, INFESTED_COBBLESTONE, INFESTED_DEEPSLATE, DRAGON_EGG, END_PORTAL_FRAME, ENDER_EYE,
                 ZOMBIE_HEAD, CREEPER_HEAD, DRAGON_HEAD, INFESTED_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS
             };
             for (Item item: items) {
+                if (item==RED_SHULKER_BOX) displayContext.lookup().getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
+                    .ifPresent(registryWrapper -> addPaintings(
+                        entries, registryWrapper, entry -> entry.isIn(PaintingVariantTags.PLACEABLE), ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
+                    ));
                 if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
                 entries.add(item);
             }
