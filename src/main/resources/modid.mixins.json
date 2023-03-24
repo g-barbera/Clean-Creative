@@ -6,7 +6,7 @@
   "mixins": [
   ],
   "client": [
-    "CleanItemGroups"
+    "ItemGroupsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
