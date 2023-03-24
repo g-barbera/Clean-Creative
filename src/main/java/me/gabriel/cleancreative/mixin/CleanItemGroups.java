@@ -10,38 +10,132 @@ import static net.minecraft.registry.Registries.INSTRUMENT;
 import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
 import net.minecraft.enchantment.EnchantmentTarget;
+import net.minecraft.entity.decoration.painting.PaintingVariant;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.tag.PaintingVariantTags;
 import net.minecraft.village.raid.Raid;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
+ * This class modifies the order of the items when the
+ * {@link Builder#entries(EntryCollector) Builder.entries(EntryCollector)}
+ * function is called for each ItemGroup.
+ * <pre>{@code
+ * // Example of original code
+ * public static final ItemGroup BUILDING_BLOCKS = ItemGroup.create(ItemGroup.Row.TOP, 0)
+ *     .entries((displayContext, entries) -> {...})
+ *     .build();
  *
+ * // How the method is injected
+ * public static final ItemGroup BUILDING_BLOCKS = ItemGroup.create(ItemGroup.Row.TOP, 0)
+ *     .entries(CleanItemGroups.modifier1((displayContext, entries) -> {...}))
+ *     .build();
+ * }</pre>
+ * The methods annotated with @{@link ModifyArg} are arbitrarily named. The bottom methods annotated with @{@link Shadow} match
+ * the signature of the methods shadowed from the target class.
  */
 @Mixin(ItemGroups.class)
 public class CleanItemGroups {
-    @Shadow private static void addPotions(ItemGroup.Entries entries, RegistryWrapper<Potion> registryWrapper, Item item, ItemGroup.StackVisibility visibility) {}
-
+    /**
+     * Modifies {@link ItemGroups#BUILDING_BLOCKS}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=0,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector BUILDING_BLOCKS(EntryCollector entryCollector) {
-        return entryCollector; // TODO: Finish BUILDING_BLOCKS ItemGroup
+    private static EntryCollector modifier1(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                OAK_LOG, OAK_WOOD, OAK_PLANKS, OAK_STAIRS, 
+                STONE, COBBLESTONE, STONE_BRICKS, MOSSY_STONE_BRICKS, MOSSY_COBBLESTONE,
+                STRIPPED_OAK_LOG, STRIPPED_OAK_WOOD, OAK_SLAB, OAK_SIGN, 
+                STONE_STAIRS, COBBLESTONE_STAIRS, STONE_BRICK_STAIRS, MOSSY_STONE_BRICK_STAIRS, MOSSY_COBBLESTONE_STAIRS,
+                OAK_FENCE, OAK_FENCE_GATE, OAK_DOOR, OAK_TRAPDOOR,
+                STONE_SLAB, COBBLESTONE_SLAB, STONE_BRICK_SLAB, MOSSY_STONE_BRICK_SLAB, MOSSY_COBBLESTONE_SLAB,
+                SPRUCE_LOG, SPRUCE_WOOD, SPRUCE_PLANKS, SPRUCE_STAIRS,
+                CHISELED_STONE_BRICKS, COBBLESTONE_WALL, STONE_BRICK_WALL, MOSSY_STONE_BRICK_WALL, MOSSY_COBBLESTONE_WALL,
+                STRIPPED_SPRUCE_LOG, STRIPPED_SPRUCE_WOOD, SPRUCE_SLAB, SPRUCE_SIGN,
+                CRACKED_STONE_BRICKS, DEEPSLATE, CHISELED_DEEPSLATE, CRACKED_DEEPSLATE_BRICKS, CRACKED_DEEPSLATE_TILES,
+                SPRUCE_FENCE, SPRUCE_FENCE_GATE, SPRUCE_DOOR, SPRUCE_TRAPDOOR,
+                REINFORCED_DEEPSLATE, COBBLED_DEEPSLATE, POLISHED_DEEPSLATE, DEEPSLATE_BRICKS, DEEPSLATE_TILES,
+                BIRCH_LOG, BIRCH_WOOD, BIRCH_PLANKS, BIRCH_STAIRS,
+                SMOOTH_STONE, COBBLED_DEEPSLATE_STAIRS, POLISHED_DEEPSLATE_STAIRS, DEEPSLATE_BRICK_STAIRS, DEEPSLATE_TILE_STAIRS,
+                STRIPPED_BIRCH_LOG, STRIPPED_BIRCH_WOOD, BIRCH_SLAB, BIRCH_SIGN,
+                SMOOTH_STONE_SLAB, COBBLED_DEEPSLATE_SLAB, POLISHED_DEEPSLATE_SLAB, DEEPSLATE_BRICK_SLAB, DEEPSLATE_TILE_SLAB,
+                BIRCH_FENCE, BIRCH_FENCE_GATE, BIRCH_DOOR, BIRCH_TRAPDOOR,
+                PACKED_MUD, COBBLED_DEEPSLATE_WALL, POLISHED_DEEPSLATE_WALL, DEEPSLATE_BRICK_WALL, DEEPSLATE_TILE_WALL,
+                JUNGLE_LOG, JUNGLE_WOOD, JUNGLE_PLANKS, JUNGLE_STAIRS,
+                CUT_SANDSTONE, SANDSTONE, RED_SANDSTONE, SMOOTH_SANDSTONE, SMOOTH_RED_SANDSTONE,
+                STRIPPED_JUNGLE_LOG, STRIPPED_JUNGLE_WOOD, JUNGLE_SLAB, JUNGLE_SIGN,
+                CUT_RED_SANDSTONE, SANDSTONE_STAIRS, RED_SANDSTONE_STAIRS, SMOOTH_SANDSTONE_STAIRS, SMOOTH_RED_SANDSTONE_STAIRS,
+                JUNGLE_FENCE, JUNGLE_FENCE_GATE, JUNGLE_DOOR, JUNGLE_TRAPDOOR,
+                CUT_SANDSTONE_SLAB, SANDSTONE_SLAB, RED_SANDSTONE_SLAB, SMOOTH_SANDSTONE_SLAB, SMOOTH_RED_SANDSTONE_SLAB,
+                ACACIA_LOG, ACACIA_WOOD, ACACIA_PLANKS, ACACIA_STAIRS,
+                CUT_RED_SANDSTONE_SLAB, SANDSTONE_WALL, RED_SANDSTONE_WALL, CHISELED_SANDSTONE, CHISELED_RED_SANDSTONE,
+                STRIPPED_ACACIA_LOG, STRIPPED_ACACIA_WOOD, ACACIA_SLAB, ACACIA_SIGN,
+                MUD_BRICKS, BRICKS, GRANITE, DIORITE, ANDESITE,
+                ACACIA_FENCE, ACACIA_FENCE_GATE, ACACIA_DOOR, ACACIA_TRAPDOOR,
+                MUD_BRICK_STAIRS, BRICK_STAIRS, GRANITE_STAIRS, DIORITE_STAIRS, ANDESITE_STAIRS,
+                DARK_OAK_LOG, DARK_OAK_WOOD, DARK_OAK_PLANKS, DARK_OAK_STAIRS,
+                MUD_BRICK_SLAB, BRICK_SLAB, GRANITE_SLAB, DIORITE_SLAB, ANDESITE_SLAB,
+                STRIPPED_DARK_OAK_LOG, STRIPPED_DARK_OAK_WOOD, DARK_OAK_SLAB, DARK_OAK_SIGN,
+                MUD_BRICK_WALL, BRICK_WALL, GRANITE_WALL, DIORITE_WALL, ANDESITE_WALL,
+                DARK_OAK_FENCE, DARK_OAK_FENCE_GATE, DARK_OAK_DOOR, DARK_OAK_TRAPDOOR,
+                NETHER_BRICKS, RED_NETHER_BRICKS, POLISHED_GRANITE, POLISHED_DIORITE, POLISHED_ANDESITE,
+                MANGROVE_LOG, MANGROVE_WOOD, MANGROVE_PLANKS, MANGROVE_STAIRS,
+                NETHER_BRICK_STAIRS, RED_NETHER_BRICK_STAIRS, POLISHED_GRANITE_STAIRS, POLISHED_DIORITE_STAIRS, POLISHED_ANDESITE_STAIRS,
+                STRIPPED_MANGROVE_LOG, STRIPPED_MANGROVE_WOOD, MANGROVE_SLAB, MANGROVE_SIGN,
+                NETHER_BRICK_SLAB, RED_NETHER_BRICK_SLAB, POLISHED_GRANITE_SLAB, POLISHED_DIORITE_SLAB, POLISHED_ANDESITE_SLAB,
+                MANGROVE_FENCE, MANGROVE_FENCE_GATE, MANGROVE_DOOR, MANGROVE_TRAPDOOR,
+                NETHER_BRICK_WALL, RED_NETHER_BRICK_WALL, NETHERRACK, CRACKED_NETHER_BRICKS, CHISELED_NETHER_BRICKS,
+                CRIMSON_STEM, CRIMSON_HYPHAE, CRIMSON_PLANKS, CRIMSON_STAIRS,
+                NETHER_BRICK_FENCE, PRISMARINE_WALL, PRISMARINE, PRISMARINE_BRICKS, DARK_PRISMARINE,
+                STRIPPED_CRIMSON_STEM, STRIPPED_CRIMSON_HYPHAE, CRIMSON_SLAB, CRIMSON_SIGN,
+                GILDED_BLACKSTONE, SEA_LANTERN, PRISMARINE_STAIRS, PRISMARINE_BRICK_STAIRS, DARK_PRISMARINE_STAIRS,
+                CRIMSON_FENCE, CRIMSON_FENCE_GATE, CRIMSON_DOOR, CRIMSON_TRAPDOOR,
+                CHISELED_POLISHED_BLACKSTONE, CRACKED_POLISHED_BLACKSTONE_BRICKS, PRISMARINE_SLAB, PRISMARINE_BRICK_SLAB, DARK_PRISMARINE_SLAB,
+                WARPED_STEM, WARPED_HYPHAE, WARPED_PLANKS, WARPED_STAIRS,
+                END_STONE, END_STONE_BRICKS, BLACKSTONE, POLISHED_BLACKSTONE, POLISHED_BLACKSTONE_BRICKS,
+                STRIPPED_WARPED_STEM, STRIPPED_WARPED_HYPHAE, WARPED_SLAB, WARPED_SIGN,
+                BASALT, END_STONE_BRICK_STAIRS, BLACKSTONE_STAIRS, POLISHED_BLACKSTONE_STAIRS, POLISHED_BLACKSTONE_BRICK_STAIRS,
+                WARPED_FENCE, WARPED_FENCE_GATE, WARPED_DOOR, WARPED_TRAPDOOR,
+                POLISHED_BASALT, END_STONE_BRICK_SLAB, BLACKSTONE_SLAB, POLISHED_BLACKSTONE_SLAB, POLISHED_BLACKSTONE_BRICK_SLAB,
+                PURPUR_PILLAR, PURPUR_BLOCK, PURPUR_STAIRS, PURPUR_SLAB,
+                SMOOTH_BASALT, END_STONE_BRICK_WALL, BLACKSTONE_WALL, POLISHED_BLACKSTONE_WALL, POLISHED_BLACKSTONE_BRICK_WALL,
+                COAL_BLOCK, IRON_BLOCK, GOLD_BLOCK, REDSTONE_BLOCK, EMERALD_BLOCK, LAPIS_BLOCK, DIAMOND_BLOCK, NETHERITE_BLOCK, AMETHYST_BLOCK,
+                QUARTZ_BLOCK, QUARTZ_STAIRS, QUARTZ_SLAB, SMOOTH_QUARTZ, SMOOTH_QUARTZ_STAIRS,
+                SMOOTH_QUARTZ_SLAB, QUARTZ_BRICKS, QUARTZ_PILLAR, CHISELED_QUARTZ_BLOCK,
+                COPPER_BLOCK, CUT_COPPER, CUT_COPPER_STAIRS, CUT_COPPER_SLAB,
+                WAXED_COPPER_BLOCK, WAXED_CUT_COPPER, WAXED_CUT_COPPER_STAIRS, WAXED_CUT_COPPER_SLAB, IRON_DOOR,
+                EXPOSED_COPPER, EXPOSED_CUT_COPPER, EXPOSED_CUT_COPPER_STAIRS, EXPOSED_CUT_COPPER_SLAB,
+                WAXED_EXPOSED_COPPER, WAXED_EXPOSED_CUT_COPPER, WAXED_EXPOSED_CUT_COPPER_STAIRS, WAXED_EXPOSED_CUT_COPPER_SLAB, IRON_TRAPDOOR,
+                WEATHERED_COPPER, WEATHERED_CUT_COPPER, WEATHERED_CUT_COPPER_STAIRS, WEATHERED_CUT_COPPER_SLAB,
+                WAXED_WEATHERED_COPPER, WAXED_WEATHERED_CUT_COPPER, WAXED_WEATHERED_CUT_COPPER_STAIRS, WAXED_WEATHERED_CUT_COPPER_SLAB, IRON_BARS,
+                OXIDIZED_COPPER, OXIDIZED_CUT_COPPER, OXIDIZED_CUT_COPPER_STAIRS, OXIDIZED_CUT_COPPER_SLAB,
+                WAXED_OXIDIZED_COPPER, WAXED_OXIDIZED_CUT_COPPER, WAXED_OXIDIZED_CUT_COPPER_STAIRS, WAXED_OXIDIZED_CUT_COPPER_SLAB, CHAIN,
+            };
+            for (Item item : items) entries.add(item);
+        };
     }
+
+    /**
+     * Modifies {@link ItemGroups#COLORED_BLOCKS}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=1,
          target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
                  +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector COLORED_BLOCKS(EntryCollector entryCollector) {
-        return (dc, entries) -> {
+    private static EntryCollector modifier2(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
             Item[] items = {
                 RED_WOOL, ORANGE_WOOL, YELLOW_WOOL, LIME_WOOL,
                 GREEN_WOOL, CYAN_WOOL, BLUE_WOOL, LIGHT_BLUE_WOOL, TERRACOTTA,
@@ -91,16 +185,54 @@ public class CleanItemGroups {
             for (Item item: items) entries.add(item);
         };
     }
+
+    /**
+     * Modifies {@link ItemGroups#NATURAL}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=2,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector NATURAL(EntryCollector entryCollector) {
-        return entryCollector; // TODO: Finish NATURAL ItemGroup
+    private static EntryCollector modifier3(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                GRASS_BLOCK, PODZOL, MYCELIUM, DIRT_PATH, STONE, TUFF, OBSIDIAN, GRANITE, ICE,
+                DIRT, COARSE_DIRT, ROOTED_DIRT, FARMLAND, DEEPSLATE, CALCITE, CRYING_OBSIDIAN, DIORITE, PACKED_ICE,
+                MUD, GRAVEL, SAND, RED_SAND, DRIPSTONE_BLOCK, MOSS_BLOCK, SNOW_BLOCK, ANDESITE, BLUE_ICE,
+                CLAY, SMOOTH_BASALT, SANDSTONE, RED_SANDSTONE, POINTED_DRIPSTONE, MOSS_CARPET, SNOW, PRISMARINE, MAGMA_BLOCK,
+                BASALT, NETHERRACK, CRIMSON_NYLIUM, WARPED_NYLIUM, BONE_BLOCK, BLACKSTONE, SOUL_SAND, SOUL_SOIL, END_STONE,
+                COAL_ORE, IRON_ORE, COPPER_ORE, GOLD_ORE, REDSTONE_ORE, EMERALD_ORE, LAPIS_ORE, DIAMOND_ORE, NETHER_GOLD_ORE,
+                DEEPSLATE_COAL_ORE, DEEPSLATE_IRON_ORE, DEEPSLATE_COPPER_ORE, DEEPSLATE_GOLD_ORE, DEEPSLATE_REDSTONE_ORE,
+                DEEPSLATE_EMERALD_ORE, DEEPSLATE_LAPIS_ORE, DEEPSLATE_DIAMOND_ORE, NETHER_QUARTZ_ORE,
+                ANCIENT_DEBRIS, RAW_IRON_BLOCK, RAW_COPPER_BLOCK, RAW_GOLD_BLOCK, GLOWSTONE, RED_MUSHROOM, RED_MUSHROOM_BLOCK, BROWN_MUSHROOM, BROWN_MUSHROOM_BLOCK,
+                OAK_LOG, SPRUCE_LOG, BIRCH_LOG, JUNGLE_LOG, ACACIA_LOG, DARK_OAK_LOG, MANGROVE_LOG, CRIMSON_STEM, WARPED_STEM,
+                OAK_SAPLING, SPRUCE_SAPLING, BIRCH_SAPLING, JUNGLE_SAPLING, ACACIA_SAPLING, DARK_OAK_SAPLING, MANGROVE_PROPAGULE, CRIMSON_FUNGUS, WARPED_FUNGUS,
+                OAK_LEAVES, SPRUCE_LEAVES, BIRCH_LEAVES, JUNGLE_LEAVES, ACACIA_LEAVES, DARK_OAK_LEAVES, MANGROVE_LEAVES, NETHER_WART_BLOCK, WARPED_WART_BLOCK,
+                MUSHROOM_STEM, AZALEA, AZALEA_LEAVES, MANGROVE_ROOTS, AMETHYST_BLOCK, SMALL_AMETHYST_BUD, MEDIUM_AMETHYST_BUD, WEEPING_VINES, TWISTING_VINES,
+                SHROOMLIGHT, FLOWERING_AZALEA, FLOWERING_AZALEA_LEAVES, MUDDY_MANGROVE_ROOTS, BUDDING_AMETHYST, LARGE_AMETHYST_BUD, AMETHYST_CLUSTER, CRIMSON_ROOTS, WARPED_ROOTS,
+                DANDELION, POPPY, ALLIUM, AZURE_BLUET, RED_TULIP, ORANGE_TULIP, OXEYE_DAISY, GRASS, FERN,
+                CORNFLOWER, LILY_OF_THE_VALLEY, SPORE_BLOSSOM, BLUE_ORCHID, PINK_TULIP, WHITE_TULIP, DEAD_BUSH, TALL_GRASS, LARGE_FERN,
+                PEONY, ROSE_BUSH, LILAC, SUNFLOWER, BIG_DRIPLEAF, SMALL_DRIPLEAF, WITHER_ROSE, BAMBOO, SUGAR_CANE,
+                TURTLE_EGG, FROGSPAWN, HANGING_ROOTS, CHORUS_PLANT, CHORUS_FLOWER, PUMPKIN_SEEDS, COCOA_BEANS, SEA_PICKLE, SEAGRASS,
+                GLOW_LICHEN, LILY_PAD, NETHER_WART, SWEET_BERRIES, GLOW_BERRIES, MELON_SEEDS, BEETROOT_SEEDS, NETHER_SPROUTS, KELP,
+                SCULK, SCULK_VEIN, SCULK_CATALYST, SCULK_SHRIEKER, SCULK_SENSOR, WHEAT_SEEDS, COBWEB, VINE, CACTUS,
+                TUBE_CORAL_BLOCK, DEAD_TUBE_CORAL_BLOCK, TUBE_CORAL, DEAD_TUBE_CORAL, TUBE_CORAL_FAN, DEAD_TUBE_CORAL_FAN, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT,
+                BRAIN_CORAL_BLOCK, DEAD_BRAIN_CORAL_BLOCK, BRAIN_CORAL, DEAD_BRAIN_CORAL, BRAIN_CORAL_FAN, DEAD_BRAIN_CORAL_FAN, PUMPKIN, CARVED_PUMPKIN, JACK_O_LANTERN,
+                BUBBLE_CORAL_BLOCK, DEAD_BUBBLE_CORAL_BLOCK, BUBBLE_CORAL, DEAD_BUBBLE_CORAL, BUBBLE_CORAL_FAN, DEAD_BUBBLE_CORAL_FAN, MELON, BEE_NEST, HONEYCOMB_BLOCK,
+                FIRE_CORAL_BLOCK, DEAD_FIRE_CORAL_BLOCK, FIRE_CORAL, DEAD_FIRE_CORAL, FIRE_CORAL_FAN, DEAD_FIRE_CORAL_FAN, SLIME_BLOCK, HONEY_BLOCK, DRIED_KELP_BLOCK,
+                HORN_CORAL_BLOCK, DEAD_HORN_CORAL_BLOCK, HORN_CORAL, DEAD_HORN_CORAL, HORN_CORAL_FAN, DEAD_HORN_CORAL_FAN, SPONGE, WET_SPONGE, HAY_BLOCK,
+                BEDROCK
+            };
+            for (Item item: items) entries.add(item);
+        };
     }
+
+    /**
+     * Modifies {@link ItemGroups#FUNCTIONAL}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=3,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector FUNCTIONAL(EntryCollector entryCollector) {
+    private static EntryCollector modifier4(EntryCollector entryCollector) {
         return (displayContext, entries) -> {
             Item[] items = {
                 CRAFTING_TABLE, FURNACE, CHEST, ENDER_CHEST, BREWING_STAND, ANVIL, CHIPPED_ANVIL, DAMAGED_ANVIL, ENCHANTING_TABLE,
@@ -109,6 +241,8 @@ public class CleanItemGroups {
                 CAMPFIRE, LANTERN, TORCH, REDSTONE_TORCH, GLOWSTONE, SHROOMLIGHT, MAGMA_BLOCK, CRYING_OBSIDIAN, RESPAWN_ANCHOR,
                 SOUL_CAMPFIRE, SOUL_LANTERN, SOUL_TORCH, END_ROD, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT, SEA_LANTERN, REDSTONE_LAMP,
                 BOOKSHELF, CHAIN, LADDER, SCAFFOLDING, LIGHTNING_ROD, FLOWER_POT, ARMOR_STAND, ITEM_FRAME, GLOW_ITEM_FRAME,
+                PAINTING,
+                OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, CRIMSON_SIGN, WARPED_SIGN,
                 RED_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
                 GREEN_SHULKER_BOX, CYAN_SHULKER_BOX, BLUE_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, SHULKER_BOX,
                 PURPLE_SHULKER_BOX, MAGENTA_SHULKER_BOX, PINK_SHULKER_BOX, BROWN_SHULKER_BOX,
@@ -123,28 +257,55 @@ public class CleanItemGroups {
                 ZOMBIE_HEAD, CREEPER_HEAD, DRAGON_HEAD, INFESTED_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS
             };
             for (Item item: items) {
-                if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
+                if (item==OAK_SIGN)
+                    displayContext.lookup().getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
+                        .ifPresent(registryWrapper -> addPaintings(
+                            entries, registryWrapper, entry -> entry.isIn(PaintingVariantTags.PLACEABLE),
+                            StackVisibility.PARENT_AND_SEARCH_TABS
+                        ));
+                else if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
                 entries.add(item);
             }
         };
     }
+
+    /**
+     * Modifies {@link ItemGroups#REDSTONE}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=4,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector REDSTONE(EntryCollector entryCollector) {
-        return entryCollector; // TODO: Finish FUNCTIONAL ItemGroup
+    private static EntryCollector modifier5(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                REDSTONE, REDSTONE_TORCH, REPEATER, COMPARATOR, REDSTONE_BLOCK, PISTON, STICKY_PISTON, REDSTONE_LAMP, NOTE_BLOCK,
+                TARGET, LIGHTNING_ROD, TRIPWIRE_HOOK, LEVER, DAYLIGHT_DETECTOR, TNT, HONEY_BLOCK, SLIME_BLOCK, SCULK_SENSOR,
+                OBSERVER, DISPENSER, DROPPER, HOPPER, TRAPPED_CHEST, HEAVY_WEIGHTED_PRESSURE_PLATE, LIGHT_WEIGHTED_PRESSURE_PLATE, IRON_TRAPDOOR, IRON_DOOR,
+                OAK_DOOR, SPRUCE_DOOR, BIRCH_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR, CRIMSON_DOOR, WARPED_DOOR,
+                OAK_FENCE_GATE, SPRUCE_FENCE_GATE, BIRCH_FENCE_GATE, JUNGLE_FENCE_GATE, ACACIA_FENCE_GATE, DARK_OAK_FENCE_GATE, MANGROVE_FENCE_GATE, CRIMSON_FENCE_GATE, WARPED_FENCE_GATE,
+                OAK_TRAPDOOR, SPRUCE_TRAPDOOR, BIRCH_TRAPDOOR, JUNGLE_TRAPDOOR, ACACIA_TRAPDOOR, DARK_OAK_TRAPDOOR, MANGROVE_TRAPDOOR, CRIMSON_TRAPDOOR, WARPED_TRAPDOOR,
+                OAK_PRESSURE_PLATE, SPRUCE_PRESSURE_PLATE, BIRCH_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE, MANGROVE_PRESSURE_PLATE, CRIMSON_PRESSURE_PLATE, WARPED_PRESSURE_PLATE,
+                OAK_BUTTON, SPRUCE_BUTTON, BIRCH_BUTTON, JUNGLE_BUTTON, ACACIA_BUTTON, DARK_OAK_BUTTON, MANGROVE_BUTTON, CRIMSON_BUTTON, WARPED_BUTTON,
+                STONE_PRESSURE_PLATE, POLISHED_BLACKSTONE_PRESSURE_PLATE, STONE_BUTTON, POLISHED_BLACKSTONE_BUTTON
+            };
+            for (Item item : items) entries.add(item);
+        };
     }
+
+    /**
+     * Modifies {@link ItemGroups#TOOLS}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=6,
             target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
                     +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector TOOLS(EntryCollector entryCollector) {
+    private static EntryCollector modifier6(EntryCollector entryCollector) {
         return (displayContext, entries) -> {
             Item[] items = {
-                WOODEN_SHOVEL, WOODEN_PICKAXE, WOODEN_AXE, WOODEN_HOE, BUCKET, COD_BUCKET, SALMON_BUCKET, FIREWORK_ROCKET, COMPASS,
-                STONE_SHOVEL, STONE_PICKAXE, STONE_AXE, STONE_HOE, WATER_BUCKET, TROPICAL_FISH_BUCKET, TADPOLE_BUCKET, FIREWORK_ROCKET, RECOVERY_COMPASS,
-                IRON_SHOVEL, IRON_PICKAXE, IRON_AXE, IRON_HOE, LAVA_BUCKET, PUFFERFISH_BUCKET, AXOLOTL_BUCKET, FIREWORK_ROCKET, CLOCK,
-                GOLDEN_SHOVEL, GOLDEN_PICKAXE, GOLDEN_AXE, GOLDEN_HOE, POWDER_SNOW_BUCKET, MILK_BUCKET, ENDER_PEARL, BONE_MEAL, SPYGLASS,
-                DIAMOND_SHOVEL, DIAMOND_PICKAXE, DIAMOND_AXE, DIAMOND_HOE, MAP, WRITABLE_BOOK, ENDER_EYE, SADDLE, SHEARS,
+                WOODEN_SHOVEL, WOODEN_PICKAXE, WOODEN_AXE, WOODEN_HOE, BUCKET, COD_BUCKET, SALMON_BUCKET, COMPASS, SPYGLASS,
+                STONE_SHOVEL, STONE_PICKAXE, STONE_AXE, STONE_HOE, WATER_BUCKET, TROPICAL_FISH_BUCKET, TADPOLE_BUCKET, RECOVERY_COMPASS, SHEARS,
+                IRON_SHOVEL, IRON_PICKAXE, IRON_AXE, IRON_HOE, LAVA_BUCKET, PUFFERFISH_BUCKET, AXOLOTL_BUCKET, CLOCK, FIREWORK_ROCKET,
+                GOLDEN_SHOVEL, GOLDEN_PICKAXE, GOLDEN_AXE, GOLDEN_HOE, POWDER_SNOW_BUCKET, MILK_BUCKET, ENDER_PEARL, BONE_MEAL, FIREWORK_ROCKET,
+                DIAMOND_SHOVEL, DIAMOND_PICKAXE, DIAMOND_AXE, DIAMOND_HOE, MAP, WRITABLE_BOOK, ENDER_EYE, SADDLE, FIREWORK_ROCKET,
                 NETHERITE_SHOVEL, NETHERITE_PICKAXE, NETHERITE_AXE, NETHERITE_HOE, ELYTRA, LEAD, FIRE_CHARGE, NAME_TAG, FLINT_AND_STEEL,
                 FISHING_ROD, CARROT_ON_A_STICK, OAK_BOAT, SPRUCE_BOAT, BIRCH_BOAT, JUNGLE_BOAT, ACACIA_BOAT, DARK_OAK_BOAT, MANGROVE_BOAT,
                 MINECART, WARPED_FUNGUS_ON_A_STICK, OAK_CHEST_BOAT, SPRUCE_CHEST_BOAT, BIRCH_CHEST_BOAT, JUNGLE_CHEST_BOAT, ACACIA_CHEST_BOAT, DARK_OAK_CHEST_BOAT, MANGROVE_CHEST_BOAT,
@@ -166,10 +327,14 @@ public class CleanItemGroups {
             }
         };
     }
+
+    /**
+     * Modifies {@link ItemGroups#COMBAT}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=7,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector COMBAT(EntryCollector entryCollector) {
+    private static EntryCollector modifier7(EntryCollector entryCollector) {
         return (displayContext, entries) -> {
             Item[] items = {
                 WOODEN_SWORD, WOODEN_AXE, LEATHER_HELMET, LEATHER_CHESTPLATE, LEATHER_LEGGINGS, LEATHER_BOOTS, LEATHER_HORSE_ARMOR, SNOWBALL, EGG,
@@ -191,10 +356,14 @@ public class CleanItemGroups {
             );
         };
     }
+
+    /**
+     * Modifies {@link ItemGroups#FOOD_AND_DRINK}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=8,
             target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
                     +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector FOOD_AND_DRINK(EntryCollector entryCollector) {
+    private static EntryCollector modifier8(EntryCollector entryCollector) {
         return (displayContext, entries) -> {
             Item[] items = {
                     PORKCHOP, COOKED_PORKCHOP, COD, COOKED_COD, DRIED_KELP, MUSHROOM_STEW, SUSPICIOUS_STEW, SUSPICIOUS_STEW, SUSPICIOUS_STEW,
@@ -225,10 +394,14 @@ public class CleanItemGroups {
             });
         };
     }
+
+    /**
+     * Modifies {@link ItemGroups#INGREDIENTS}
+     */
     @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=9,
         target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
             +"Lnet/minecraft/item/ItemGroup$Builder;"))
-    private static EntryCollector INGREDIENTS(EntryCollector entryCollector) {
+    private static EntryCollector modifier9(EntryCollector entryCollector) {
         return (displayContext, entries) -> {
             Item[] items = {
                 COAL, IRON_INGOT, COPPER_INGOT, GOLD_INGOT, NETHERITE_INGOT, DIAMOND, LAPIS_LAZULI, BLAZE_ROD, SNOWBALL,
@@ -253,4 +426,7 @@ public class CleanItemGroups {
             }
         };
     }
+    @Shadow private static void addPotions(Entries entries, RegistryWrapper<Potion> registryWrapper, Item item, StackVisibility visibility) {}
+    @Shadow private static void addPaintings(Entries entries, RegistryWrapper.Impl<PaintingVariant> registryWrapper, Predicate<RegistryEntry<PaintingVariant>> predicate, StackVisibility visibility) {}
+
 }
