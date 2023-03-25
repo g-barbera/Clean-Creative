@@ -18,6 +18,7 @@ If it doesn't exist, make one.
 5. If Minecraft Fabric is running, restart the game.
 
 ## Notes/other plans
+- I don't plan on making any changes to the search, inventory, or spawn eggs tabs.
 - I'm currently working on a 1.20 update for this. Should be released either on or shortly after the game update.
 - I'd like to revamp the hotbar tab once my 1.20 update is out.
 - I'd also like to add the item grouping feature that Bedrock has 
@@ -26,14 +27,14 @@ If it doesn't exist, make one.
 
 ## Images
 ![](src/main/resources/assets/github/BUILDING_BLOCKS.png "Building Blocks tab")
-![](src/main/resources/assets/github/COLORED_BLOCKS.png)
-![](src/main/resources/assets/github/NATURAL.png)
-![](src/main/resources/assets/github/FUNCTIONAL.png)
-![](src/main/resources/assets/github/REDSTONE.png)
-![](src/main/resources/assets/github/TOOLS.png)
-![](src/main/resources/assets/github/COMBAT.png)
-![](src/main/resources/assets/github/FOOD_AND_DRINK.png)
-![](src/main/resources/assets/github/INGREDIENTS.png)
+![](src/main/resources/assets/github/COLORED_BLOCKS.png "Colored Blocks tab")
+![](src/main/resources/assets/github/NATURAL.png "Natural Blocks tab")
+![](src/main/resources/assets/github/FUNCTIONAL.png "Functional Blocks tab")
+![](src/main/resources/assets/github/REDSTONE.png "Redstone Blocks tab")
+![](src/main/resources/assets/github/TOOLS.png "Tools & Utilities tab")
+![](src/main/resources/assets/github/COMBAT.png "Combat tab")
+![](src/main/resources/assets/github/FOOD_AND_DRINK.png "Food & Drinks tab")
+![](src/main/resources/assets/github/INGREDIENTS.png "Ingredients tab")
 
 ## License
 This project is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
