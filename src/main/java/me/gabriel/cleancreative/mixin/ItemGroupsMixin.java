@@ -47,7 +47,7 @@ import java.util.stream.Stream;
  * the signature of the methods shadowed from the target class.
  */
 @Mixin(ItemGroups.class)
-public class CleanItemGroups {
+public class ItemGroupsMixin {
     /**
      * Modifies {@link ItemGroups#BUILDING_BLOCKS}
      */
