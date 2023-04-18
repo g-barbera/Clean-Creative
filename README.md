@@ -9,6 +9,7 @@ This is made for the Fabric mod loader and is not compatible with other mod load
 - Wood and blackstone variants are under Redstone again
 - Removed functional blocks and wool from Redstone (Lectern, furnace, chest). 
 
+
 ## Download instructions
 1. Make sure you have Fabric Loader installed.
 2. Under "Releases", navigate to your desired version.
@@ -24,6 +25,10 @@ If it doesn't exist, make one.
 - I'd also like to add the item grouping feature that Bedrock has 
 (ex. right-clicking wood planks to display all variants)
 - Kinda new to Git(hub) so this project is also to help me learn how to use the tool.
+
+## Code
+- [Click here](/src/main/java/me/gabriel/cleancreative) to navigate to code.
+- 
 
 ## Images
 ![](src/main/resources/assets/github/BUILDING_BLOCKS.png "Building Blocks tab")
