@@ -1,11 +1,10 @@
 package me.gabriel.cleancreative.mixin;
 
-import static net.minecraft.item.FireworkRocketItem.*;
+import static net.minecraft.item.FireworkRocketItem.setFlight;
 import static net.minecraft.item.GoatHornItem.getStackForInstrument;
-import static net.minecraft.item.Instruments.*;
 import static net.minecraft.item.ItemGroup.*;
 import static net.minecraft.item.Items.*;
-import static net.minecraft.registry.Registries.INSTRUMENT;
+import static net.minecraft.registry.tag.InstrumentTags.GOAT_HORNS;
 
 import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.enchantment.EnchantmentLevelEntry;
@@ -226,72 +225,74 @@ public class ItemGroupsMixin {
         };
     }
 
-//    /**
-//     * Modifies {@link ItemGroups#FUNCTIONAL}
-//     */
-//    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=3,
-//        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
-//            +"Lnet/minecraft/item/ItemGroup$Builder;"))
-//    private static EntryCollector modifier4(EntryCollector entryCollector) {
-//        return (displayContext, entries) -> {
-//            Item[] items = {
-//                CRAFTING_TABLE, FURNACE, CHEST, ENDER_CHEST, BREWING_STAND, ANVIL, CHIPPED_ANVIL, DAMAGED_ANVIL, ENCHANTING_TABLE,
-//                STONECUTTER, SMOKER, BARREL, LOOM, CAULDRON, CARTOGRAPHY_TABLE, BEACON, BEEHIVE, BEE_NEST,
-//                LECTERN, BLAST_FURNACE, SMITHING_TABLE, FLETCHING_TABLE, GRINDSTONE, COMPOSTER, BELL, GLOW_LICHEN, LODESTONE,
-//                CAMPFIRE, LANTERN, TORCH, REDSTONE_TORCH, GLOWSTONE, SHROOMLIGHT, MAGMA_BLOCK, CRYING_OBSIDIAN, RESPAWN_ANCHOR,
-//                SOUL_CAMPFIRE, SOUL_LANTERN, SOUL_TORCH, END_ROD, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT, SEA_LANTERN, REDSTONE_LAMP,
-//                BOOKSHELF, CHAIN, LADDER, SCAFFOLDING, LIGHTNING_ROD, FLOWER_POT, ARMOR_STAND, ITEM_FRAME, GLOW_ITEM_FRAME,
-//                PAINTING,
-//                OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, CRIMSON_SIGN, WARPED_SIGN,
-//                RED_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
-//                GREEN_SHULKER_BOX, CYAN_SHULKER_BOX, BLUE_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, SHULKER_BOX,
-//                PURPLE_SHULKER_BOX, MAGENTA_SHULKER_BOX, PINK_SHULKER_BOX, BROWN_SHULKER_BOX,
-//                WHITE_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, GRAY_SHULKER_BOX, BLACK_SHULKER_BOX, TINTED_GLASS,
-//                RED_BED, ORANGE_BED, YELLOW_BED, LIME_BED, GREEN_BED, CYAN_BED, BLUE_BED, LIGHT_BLUE_BED, JUKEBOX,
-//                PURPLE_BED, MAGENTA_BED, PINK_BED, BROWN_BED, WHITE_BED, LIGHT_GRAY_BED, GRAY_BED, BLACK_BED, NOTE_BLOCK,
-//                RED_CANDLE, ORANGE_CANDLE, YELLOW_CANDLE, LIME_CANDLE, GREEN_CANDLE, CYAN_CANDLE, BLUE_CANDLE, LIGHT_BLUE_CANDLE, CANDLE,
-//                PURPLE_CANDLE, MAGENTA_CANDLE, PINK_CANDLE, BROWN_CANDLE, WHITE_CANDLE, LIGHT_GRAY_CANDLE, GRAY_CANDLE, BLACK_CANDLE, CONDUIT,
-//                RED_BANNER, ORANGE_BANNER, YELLOW_BANNER, LIME_BANNER, GREEN_BANNER, CYAN_BANNER, BLUE_BANNER, LIGHT_BLUE_BANNER, // (ominous banner here)
-//                PURPLE_BANNER, MAGENTA_BANNER, PINK_BANNER, BROWN_BANNER, WHITE_BANNER, LIGHT_GRAY_BANNER, GRAY_BANNER, BLACK_BANNER, END_CRYSTAL,
-//                SKELETON_SKULL, WITHER_SKELETON_SKULL, PLAYER_HEAD, INFESTED_STONE, INFESTED_COBBLESTONE, INFESTED_DEEPSLATE, DRAGON_EGG, END_PORTAL_FRAME, ENDER_EYE,
-//                ZOMBIE_HEAD, CREEPER_HEAD, DRAGON_HEAD, INFESTED_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS
-//            };
-//            for (Item item: items) {
-//                if (item==OAK_SIGN)
-//                    displayContext.lookup().getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
-//                        .ifPresent(registryWrapper -> addPaintings(
-//                            entries, registryWrapper, entry -> entry.isIn(PaintingVariantTags.PLACEABLE),
-//                            StackVisibility.PARENT_AND_SEARCH_TABS
-//                        ));
-//                else if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
-//                entries.add(item);
-//            }
-//        };
-//    }
-//
-//    /**
-//     * Modifies {@link ItemGroups#REDSTONE}
-//     */
-//    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=4,
-//        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
-//            +"Lnet/minecraft/item/ItemGroup$Builder;"))
-//    private static EntryCollector modifier5(EntryCollector entryCollector) {
-//        return (displayContext, entries) -> {
-//            Item[] items = {
-//                REDSTONE, REDSTONE_TORCH, REPEATER, COMPARATOR, REDSTONE_BLOCK, PISTON, STICKY_PISTON, REDSTONE_LAMP, NOTE_BLOCK,
-//                TARGET, LIGHTNING_ROD, TRIPWIRE_HOOK, LEVER, DAYLIGHT_DETECTOR, TNT, HONEY_BLOCK, SLIME_BLOCK, SCULK_SENSOR,
-//                OBSERVER, DISPENSER, DROPPER, HOPPER, TRAPPED_CHEST, HEAVY_WEIGHTED_PRESSURE_PLATE, LIGHT_WEIGHTED_PRESSURE_PLATE, IRON_TRAPDOOR, IRON_DOOR,
-//                OAK_DOOR, SPRUCE_DOOR, BIRCH_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR, CRIMSON_DOOR, WARPED_DOOR,
-//                OAK_FENCE_GATE, SPRUCE_FENCE_GATE, BIRCH_FENCE_GATE, JUNGLE_FENCE_GATE, ACACIA_FENCE_GATE, DARK_OAK_FENCE_GATE, MANGROVE_FENCE_GATE, CRIMSON_FENCE_GATE, WARPED_FENCE_GATE,
-//                OAK_TRAPDOOR, SPRUCE_TRAPDOOR, BIRCH_TRAPDOOR, JUNGLE_TRAPDOOR, ACACIA_TRAPDOOR, DARK_OAK_TRAPDOOR, MANGROVE_TRAPDOOR, CRIMSON_TRAPDOOR, WARPED_TRAPDOOR,
-//                OAK_PRESSURE_PLATE, SPRUCE_PRESSURE_PLATE, BIRCH_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE, MANGROVE_PRESSURE_PLATE, CRIMSON_PRESSURE_PLATE, WARPED_PRESSURE_PLATE,
-//                OAK_BUTTON, SPRUCE_BUTTON, BIRCH_BUTTON, JUNGLE_BUTTON, ACACIA_BUTTON, DARK_OAK_BUTTON, MANGROVE_BUTTON, CRIMSON_BUTTON, WARPED_BUTTON,
-//                STONE_PRESSURE_PLATE, POLISHED_BLACKSTONE_PRESSURE_PLATE, STONE_BUTTON, POLISHED_BLACKSTONE_BUTTON
-//            };
-//            for (Item item : items) entries.add(item);
-//        };
-//    }
-//
+    /**
+     * Modifies {@link ItemGroups#FUNCTIONAL}
+     */
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=3,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector modifier4(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                CRAFTING_TABLE, FURNACE, CHEST, ENDER_CHEST, BREWING_STAND, ANVIL, CHIPPED_ANVIL, DAMAGED_ANVIL, ENCHANTING_TABLE,
+                STONECUTTER, SMOKER, BARREL, LOOM, CAULDRON, CARTOGRAPHY_TABLE, BEACON, BEEHIVE, BEE_NEST,
+                LECTERN, BLAST_FURNACE, SMITHING_TABLE, FLETCHING_TABLE, GRINDSTONE, COMPOSTER, BELL, CHISELED_BOOKSHELF, LODESTONE,
+                CAMPFIRE, LANTERN, TORCH, REDSTONE_TORCH, GLOWSTONE, SHROOMLIGHT, MAGMA_BLOCK, CRYING_OBSIDIAN, RESPAWN_ANCHOR,
+                SOUL_CAMPFIRE, SOUL_LANTERN, SOUL_TORCH, END_ROD, OCHRE_FROGLIGHT, VERDANT_FROGLIGHT, PEARLESCENT_FROGLIGHT, SEA_LANTERN, REDSTONE_LAMP,
+                BOOKSHELF, CHAIN, LADDER, SCAFFOLDING, LIGHTNING_ROD, FLOWER_POT, DECORATED_POT, ITEM_FRAME, GLOW_ITEM_FRAME,
+                PAINTING,
+                OAK_SIGN, SPRUCE_SIGN, BIRCH_SIGN, JUNGLE_SIGN, ACACIA_SIGN, DARK_OAK_SIGN, MANGROVE_SIGN, CRIMSON_SIGN, WARPED_SIGN,
+                OAK_HANGING_SIGN, SPRUCE_HANGING_SIGN, BIRCH_HANGING_SIGN, JUNGLE_HANGING_SIGN, ACACIA_HANGING_SIGN, DARK_OAK_HANGING_SIGN, MANGROVE_HANGING_SIGN, CRIMSON_HANGING_SIGN, WARPED_HANGING_SIGN,
+                CHERRY_SIGN, BAMBOO_SIGN, SKELETON_SKULL, WITHER_SKELETON_SKULL, PIGLIN_HEAD, PLAYER_HEAD, INFESTED_STONE, INFESTED_COBBLESTONE, INFESTED_DEEPSLATE,
+                CHERRY_HANGING_SIGN, BAMBOO_HANGING_SIGN, ZOMBIE_HEAD, CREEPER_HEAD, DRAGON_HEAD, INFESTED_STONE_BRICKS, INFESTED_MOSSY_STONE_BRICKS, INFESTED_CRACKED_STONE_BRICKS, INFESTED_CHISELED_STONE_BRICKS,
+                RED_SHULKER_BOX, ORANGE_SHULKER_BOX, YELLOW_SHULKER_BOX, LIME_SHULKER_BOX,
+                GREEN_SHULKER_BOX, CYAN_SHULKER_BOX, BLUE_SHULKER_BOX, LIGHT_BLUE_SHULKER_BOX, SHULKER_BOX,
+                PURPLE_SHULKER_BOX, MAGENTA_SHULKER_BOX, PINK_SHULKER_BOX, BROWN_SHULKER_BOX,
+                WHITE_SHULKER_BOX, LIGHT_GRAY_SHULKER_BOX, GRAY_SHULKER_BOX, BLACK_SHULKER_BOX, TINTED_GLASS,
+                RED_BED, ORANGE_BED, YELLOW_BED, LIME_BED, GREEN_BED, CYAN_BED, BLUE_BED, LIGHT_BLUE_BED, JUKEBOX,
+                PURPLE_BED, MAGENTA_BED, PINK_BED, BROWN_BED, WHITE_BED, LIGHT_GRAY_BED, GRAY_BED, BLACK_BED, NOTE_BLOCK,
+                RED_CANDLE, ORANGE_CANDLE, YELLOW_CANDLE, LIME_CANDLE, GREEN_CANDLE, CYAN_CANDLE, BLUE_CANDLE, LIGHT_BLUE_CANDLE, CANDLE,
+                PURPLE_CANDLE, MAGENTA_CANDLE, PINK_CANDLE, BROWN_CANDLE, WHITE_CANDLE, LIGHT_GRAY_CANDLE, GRAY_CANDLE, BLACK_CANDLE, CONDUIT,
+                RED_BANNER, ORANGE_BANNER, YELLOW_BANNER, LIME_BANNER, GREEN_BANNER, CYAN_BANNER, BLUE_BANNER, LIGHT_BLUE_BANNER, // (ominous banner here)
+                PURPLE_BANNER, MAGENTA_BANNER, PINK_BANNER, BROWN_BANNER, WHITE_BANNER, LIGHT_GRAY_BANNER, GRAY_BANNER, BLACK_BANNER, ARMOR_STAND,
+                END_CRYSTAL, DRAGON_EGG, END_PORTAL_FRAME, ENDER_EYE, SUSPICIOUS_SAND, SUSPICIOUS_GRAVEL, GLOW_LICHEN
+            };
+            for (Item item: items) {
+                if (item==OAK_SIGN)
+                    displayContext.lookup().getOptionalWrapper(RegistryKeys.PAINTING_VARIANT)
+                        .ifPresent(registryWrapper -> addPaintings(
+                            entries, registryWrapper, entry -> entry.isIn(PaintingVariantTags.PLACEABLE),
+                            StackVisibility.PARENT_AND_SEARCH_TABS
+                        ));
+                else if (item==PURPLE_BANNER) entries.add(Raid.getOminousBanner());
+                entries.add(item);
+            }
+        };
+    }
+
+    /**
+     * Modifies {@link ItemGroups#REDSTONE}
+     */
+    @ModifyArg(method="<clinit>", at=@At(value="INVOKE", ordinal=4,
+        target="Lnet/minecraft/item/ItemGroup$Builder;entries(Lnet/minecraft/item/ItemGroup$EntryCollector;)"
+            +"Lnet/minecraft/item/ItemGroup$Builder;"))
+    private static EntryCollector modifier5(EntryCollector entryCollector) {
+        return (displayContext, entries) -> {
+            Item[] items = {
+                REDSTONE, REDSTONE_TORCH, REPEATER, COMPARATOR, REDSTONE_BLOCK, PISTON, STICKY_PISTON, REDSTONE_LAMP, NOTE_BLOCK,
+                TARGET, LIGHTNING_ROD, TRIPWIRE_HOOK, LEVER, DAYLIGHT_DETECTOR, TNT, HONEY_BLOCK, SLIME_BLOCK, SCULK_SENSOR,
+                OBSERVER, DISPENSER, DROPPER, HOPPER, TRAPPED_CHEST, HEAVY_WEIGHTED_PRESSURE_PLATE, LIGHT_WEIGHTED_PRESSURE_PLATE, IRON_TRAPDOOR, IRON_DOOR,
+                OAK_DOOR, SPRUCE_DOOR, BIRCH_DOOR, JUNGLE_DOOR, ACACIA_DOOR, DARK_OAK_DOOR, MANGROVE_DOOR, CRIMSON_DOOR, WARPED_DOOR,
+                OAK_FENCE_GATE, SPRUCE_FENCE_GATE, BIRCH_FENCE_GATE, JUNGLE_FENCE_GATE, ACACIA_FENCE_GATE, DARK_OAK_FENCE_GATE, MANGROVE_FENCE_GATE, CRIMSON_FENCE_GATE, WARPED_FENCE_GATE,
+                OAK_TRAPDOOR, SPRUCE_TRAPDOOR, BIRCH_TRAPDOOR, JUNGLE_TRAPDOOR, ACACIA_TRAPDOOR, DARK_OAK_TRAPDOOR, MANGROVE_TRAPDOOR, CRIMSON_TRAPDOOR, WARPED_TRAPDOOR,
+                OAK_PRESSURE_PLATE, SPRUCE_PRESSURE_PLATE, BIRCH_PRESSURE_PLATE, JUNGLE_PRESSURE_PLATE, ACACIA_PRESSURE_PLATE, DARK_OAK_PRESSURE_PLATE, MANGROVE_PRESSURE_PLATE, CRIMSON_PRESSURE_PLATE, WARPED_PRESSURE_PLATE,
+                OAK_BUTTON, SPRUCE_BUTTON, BIRCH_BUTTON, JUNGLE_BUTTON, ACACIA_BUTTON, DARK_OAK_BUTTON, MANGROVE_BUTTON, CRIMSON_BUTTON, WARPED_BUTTON,
+                STONE_PRESSURE_PLATE, POLISHED_BLACKSTONE_PRESSURE_PLATE, STONE_BUTTON, POLISHED_BLACKSTONE_BUTTON
+            };
+            for (Item item : items) entries.add(item);
+        };
+    }
+
     /**
      * Modifies {@link ItemGroups#TOOLS}
      */
@@ -316,13 +317,13 @@ public class ItemGroupsMixin {
             };
             ItemStack stack;
             byte i=0;
-            Iterator<RegistryEntry<Instrument>> iter = Stream.of(
-                PONDER_GOAT_HORN, SING_GOAT_HORN, SEEK_GOAT_HORN, FEEL_GOAT_HORN, ADMIRE_GOAT_HORN, CALL_GOAT_HORN, YEARN_GOAT_HORN, DREAM_GOAT_HORN
-            ).map(horn -> INSTRUMENT.getEntry(INSTRUMENT.get(horn))).iterator();
+            Iterator<ItemStack> iter = displayContext.lookup().getWrapperOrThrow(RegistryKeys.INSTRUMENT).getOrThrow(GOAT_HORNS)
+                .stream().map(
+                    instrument -> getStackForInstrument(GOAT_HORN, instrument)
+                ).iterator();
             for (Item item: items) {
-                stack = new ItemStack(item);
-                if (item == FIREWORK_ROCKET) stack.getOrCreateSubNbt(FIREWORKS_KEY).putByte(FLIGHT_KEY, ++i);
-                if (item == GOAT_HORN) stack = getStackForInstrument(item, iter.next());
+                stack = item == GOAT_HORN? iter.next(): new ItemStack(item);
+                if (item == FIREWORK_ROCKET) setFlight(stack, ++i);
                 entries.add(stack);
             }
         };
